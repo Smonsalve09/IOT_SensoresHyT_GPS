@@ -22,8 +22,8 @@ static void smartDelay(unsigned long ms);
 
 void setup() {
 Serial.begin(115200);
-Sensor.begin(0x40);
-Wire.begin(21,22);//SDA,SCL
+//Sensor.begin(0x40);
+//Wire.begin(21,22);//SDA,SCL
 Serial1.begin(9600, SERIAL_8N1, 34, 12);
 delay(100);
   WiFi.mode(WIFI_STA);
@@ -39,7 +39,15 @@ Serial.println("Bienvenidos al Sensor de Temperatura XD el estado es:  " + state
     delay(500);
     Serial.print(".");
   }
-
+  if(cliente.connect("54.165.222.0",80)){
+    // Inicializa la Base de Datos: 
+cliente.println("GET /borrardb HTTP/1.1");
+cliente.println("Host: 54.165.222.0");
+cliente.println("Content-Type: application/json");
+cliente.println("Content-Length: "+String(1));
+cliente.println("");
+cliente.println(".");
+}
 }
 
 void loop() {
@@ -51,10 +59,11 @@ if(state=="B"){
 Serial.println("Ha ingresado al estado: " + state);
 int i;
 for(i=0;i<5;i++){
-MeasureT[i]= Sensor.readTemperature();
-smartDelay(10);
-MeasureH[i]= Sensor.readHumidity();
-smartDelay(10);
+//MeasureT[i]= Sensor.readTemperature();
+//smartDelay(10);
+//MeasureH[i]= Sensor.readHumidity();
+//smartDelay(10);
+int i=1;
 }
 if(i>=5) {
 state="C";
@@ -83,13 +92,14 @@ state="D";
 if(state=="D"){
   Serial.println("Ha ingresado al estado: " + state);
   Serial.println("La temperatura medida es: " + String(PromT)+ "La Humedad Medida es: "+ String(PromH )+ "La posicion global es: "+ String(Latitud )+", "+String(Long )+", "+String(H ));
- 
- String message = "{\"id\": \"point07\", \"lat\":"+ String(Latitud )+ " , \"lon\": " +String(Long )+ ", \"temperatura\" : "+String(PromT)+", \"humedad\": "+String(PromH )+"}";
+ //{"id": "10101", "Temp":  "50", "lat": "6.2777", "lon": "4.0333","altura": "1600", "luz": "1553", "humedad": "999"}
+ String message = "{\"id\": \"10101\", \"Temp\":"+ String(50 )+ " , \"lat\": " +String(6.888 )+ ", \"lon\" : "+String(4.0333)+", \"altura\": "+String(1600 )+",\"luz\": "+String(1600 )+",\"humedad\": "+String(1600 )+"}";
  
   // Internet Transmisión de la información en formato Json  http://10.38.32.137/update_data
-  if(cliente.connect("10.38.32.137",80)){
-cliente.println("POST /update_data HTTP/1.1");
-cliente.println("Host: 10.38.32.137");
+  if(cliente.connect("54.165.222.0",80)){
+    // Carga de la Base de Datos: 
+cliente.println("POST /send_data HTTP/1.1");
+cliente.println("Host: 54.165.222.0");
 cliente.println("Content-Type: application/json");
 cliente.println("Content-Length: "+String(message.length()));
 cliente.println("");
